@@ -1,7 +1,8 @@
 import cv2
+import glob
+
 import imutils
 import numpy as np
-import glob
 
 
 def remove_black_edges(img):
@@ -42,6 +43,20 @@ def crop_redundant(image):
     return crop
 
 
+def check_rotation(img):
+    rows, cols, _ = img.shape
+
+    if rows / cols > 4 / 3:
+        print("Vertikala ekstremna")
+    elif cols / rows > 4 / 3:
+        print("horizontala ekstremna")
+    elif rows / cols <= 4 / 3 or cols / rows <= 4 / 3:
+        print("U granicama")
+
+        # M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 90, 1)
+        # dst = cv2.warpAffine(img, M, (cols, rows))
+
+
 def detect_faces(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
@@ -57,7 +72,7 @@ def detect_faces(image):
         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
 
-def test_remove_black_edges():
+def remove_black_edges_v0():
     # 'images/bs.jpeg'
     # "images/crna1.jpg"
     image = cv2.imread("images/crna3.jpg")
@@ -73,11 +88,12 @@ def test_remove_black_edges():
     cv2.waitKey(0)
 
 
-def test_remove_black_edges1():
+def remove_black_edges1():
     for filename in glob.iglob("images/*"):
         image = cv2.imread(filename)
         proc = remove_black_edges(image.copy())
-        detect_faces(proc)
+        # detect_faces(proc)
+        check_rotation(proc)
         proc = imutils.resize(proc, height=400)
         image = imutils.resize(image, height=400)
         show = np.concatenate((image, proc), axis=1)
@@ -90,4 +106,4 @@ def test_remove_black_edges1():
 
 
 if __name__ == "__main__":
-    test_remove_black_edges1()
+    remove_black_edges1()

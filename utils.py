@@ -1,6 +1,7 @@
 import cv2
 import imutils
 import numpy as np
+import glob
 
 
 def remove_black_edges(img):
@@ -12,9 +13,9 @@ def remove_black_edges(img):
     non_empty_columns = np.where(bw.max(axis=0) > 0)[0]
     non_empty_rows = np.where(bw.max(axis=1) > 0)[0]
     crop_box = (min(non_empty_rows) * (1 - padding),
-               min(max(non_empty_rows) * (1 + padding), rows),
-               min(non_empty_columns) * (1 - padding),
-               min(max(non_empty_columns) * (1 + padding), cols))
+                min(max(non_empty_rows) * (1 + padding), rows),
+                min(non_empty_columns) * (1 - padding),
+                min(max(non_empty_columns) * (1 + padding), cols))
 
     final = img[crop_box[0] + 20:crop_box[1] - 20, crop_box[2]:crop_box[3] + 1, :]
     return final
@@ -34,5 +35,20 @@ def test_remove_black_edges():
     cv2.waitKey(0)
 
 
+def test_remove_black_edges1():
+    for filename in glob.iglob("images/*"):
+        image = cv2.imread(filename)
+        proc = remove_black_edges(image)
+        proc = imutils.resize(proc, height=400)
+        image = imutils.resize(image, height=400)
+        show = np.concatenate((image, proc), axis=1)
+        cv2.imshow("ljepotica", show)
+        # cv2.imshow("ljepotica", proc)
+        # cv2.imshow("kurotica", image)
+        print('%s' % filename)
+        cv2.waitKey(0)
+        # input(">>")
+
+
 if __name__ == "__main__":
-    test_remove_black_edges()
+    test_remove_black_edges1()

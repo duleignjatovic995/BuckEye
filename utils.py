@@ -2,10 +2,9 @@ import cv2
 import imutils
 import numpy as np
 
-padding = 0
-
 
 def remove_black_edges(img):
+    padding = 0
     # img = cv2.imread(image)
     bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     rows, cols = bw.shape

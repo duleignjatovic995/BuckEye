@@ -21,12 +21,50 @@ def remove_black_edges(img):
     return final
 
 
+def crop_redundant(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    _, th2 = cv2.threshold(gray, 8, 255, cv2.THRESH_BINARY)
+    _, contours, hierarchy = cv2.findContours(th2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    areas = [cv2.contourArea(contour) for contour in contours]
+    max_index = np.argmax(areas)
+    cnt = contours[max_index]
+    x, y, w, h = cv2.boundingRect(cnt)
+
+    # Ensure bounding rect should be at least 16:9 or taller
+    if w / h > 16 / 9:
+        # increase top and bottom margin
+        newHeight = w / 16 * 9
+        y = y - (newHeight - h) / 2
+        h = newHeight
+
+    crop = image[y:y + h, x:x + w]
+    return crop
+
+
+def detect_faces(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+    face_rects = detector.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(30, 30),
+        flags=cv2.CASCADE_SCALE_IMAGE
+    )
+
+    for (x, y, w, h) in face_rects:
+        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)
+
+
 def test_remove_black_edges():
     # 'images/bs.jpeg'
     # "images/crna1.jpg"
     image = cv2.imread("images/crna3.jpg")
+
     proc = remove_black_edges(image)
     proc = imutils.resize(proc, height=400)
+
     image = imutils.resize(image, height=400)
     show = np.concatenate((image, proc), axis=1)
     cv2.imshow("ljepotica", show)
@@ -38,7 +76,8 @@ def test_remove_black_edges():
 def test_remove_black_edges1():
     for filename in glob.iglob("images/*"):
         image = cv2.imread(filename)
-        proc = remove_black_edges(image)
+        proc = remove_black_edges(image.copy())
+        detect_faces(proc)
         proc = imutils.resize(proc, height=400)
         image = imutils.resize(image, height=400)
         show = np.concatenate((image, proc), axis=1)

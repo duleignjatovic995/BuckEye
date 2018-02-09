@@ -33,14 +33,23 @@ def crop_redundant(image):
     x, y, w, h = cv2.boundingRect(cnt)
 
     # Ensure bounding rect should be at least 16:9 or taller
-    if w / h > 16 / 9:
-        # increase top and bottom margin
-        newHeight = w / 16 * 9
-        y = y - (newHeight - h) / 2
-        h = newHeight
+    # if w / h > 16 / 9:
+    #     # increase top and bottom margin
+    #     newHeight = w / 16 * 9
+    #     y = y - (newHeight - h) / 2
+    #     h = newHeight
 
     crop = image[y:y + h, x:x + w]
     return crop
+
+
+def sljaka_sa_konturama(im):
+    im_copy = im.copy()
+    imgray = cv2.cvtColor(im_copy, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(imgray, 20, 255, 0)
+    im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(im_copy, contours, -1, (0, 255, 0), 3)
+    return im_copy
 
 
 def check_rotation(img):
@@ -72,36 +81,25 @@ def detect_faces(image):
         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
 
-def remove_black_edges_v0():
-    # 'images/bs.jpeg'
-    # "images/crna1.jpg"
-    image = cv2.imread("images/crna3.jpg")
-
-    proc = remove_black_edges(image)
-    proc = imutils.resize(proc, height=400)
-
-    image = imutils.resize(image, height=400)
-    show = np.concatenate((image, proc), axis=1)
-    cv2.imshow("ljepotica", show)
-    # cv2.imshow("ljepotica", proc)
-    # cv2.imshow("kurotica", image)
-    cv2.waitKey(0)
-
-
 def remove_black_edges1():
-    for filename in glob.iglob("images/*"):
+    for filename in glob.iglob("images1/*"):
         image = cv2.imread(filename)
-        proc = remove_black_edges(image.copy())
+        # proc = remove_black_edges(image.copy())
+        contoured = sljaka_sa_konturama(image)
+        proc = crop_redundant(image.copy())
         # detect_faces(proc)
         check_rotation(proc)
-        proc = imutils.resize(proc, height=400)
+        proc2 = imutils.resize(proc, height=400)
         image = imutils.resize(image, height=400)
-        show = np.concatenate((image, proc), axis=1)
+        contoured = imutils.resize(contoured, height=400)
+        show = np.concatenate((image, proc2, contoured), axis=1)
         cv2.imshow("ljepotica", show)
+        cv2.imwrite("rezultat/" + filename.split('/')[1], proc)
         # cv2.imshow("ljepotica", proc)
         # cv2.imshow("kurotica", image)
         print('%s' % filename)
         cv2.waitKey(0)
+
         # input(">>")
 
 

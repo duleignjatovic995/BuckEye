@@ -14,38 +14,41 @@ slika7 = "images/bf.jpeg"
 slika8 = "images/bm.jpg"
 slika9 = "images/bz.jpeg"  # nosite se u kurac
 slika10 = "images/ao.jpeg"  # jebem vam mater
+slika11 = "images/bs.jpeg"
+slika12 = "images/crna2.jpg"
 
 
-image = cv2.imread(slika1)  # read image
+image = cv2.imread(slika12)  # read image
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # image 2 grayscale
 
 
-# Bluring
+# Blurring
 gray = cv2.GaussianBlur(gray, (5, 5), 0)
-# edged = cv2.adaptiveThreshold(gray, 250, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 3)
+# gray = cv2.medianBlur(gray, (5, 5))
 # gray = cv2.blur(gray, (21, 21))
 # gray = cv2.bilateralFilter(gray, 9, 41, 41)
 
 # Thresholding
 # _, gray = cv2.threshold(gray, 254, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-# gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 20)
-
-
-# Canny
-# gray = imutils.auto_canny(gray)
-# gray = cv2.Canny(gray, 0, 3)
+# gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 51, 10)
 
 
 # Laplacian
 # gray = cv2.Laplacian(gray, cv2.CV_64F)
 # gray = np.uint8(np.absolute(gray))
 
+
 # Sobel
-sobelX = cv2.Sobel(gray, cv2.CV_64F, 1, 0)
-sobelY = cv2.Sobel(gray, cv2.CV_64F, 0, 1)
-sobelZ = cv2.bitwise_or(sobelX, sobelY)
-gray = sobelZ
-gray = np.uint8(np.absolute(gray))
+# sobelX = cv2.Sobel(gray, cv2.CV_64F, 1, 0)
+# sobelY = cv2.Sobel(gray, cv2.CV_64F, 0, 1)
+# sobelZ = cv2.bitwise_or(sobelX, sobelY)
+# gray = sobelX
+# gray = np.uint8(np.absolute(gray))
+
+
+# Canny
+gray = imutils.auto_canny(gray)
+# gray = cv2.Canny(gray, 25, 150)
 
 
 # Contours

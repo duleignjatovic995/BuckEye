@@ -1,7 +1,9 @@
 import cv2
 import imutils
+import numpy as np
 
 
+slika0= "images/ogavna.jpg"
 slika1 = "images/aw.jpg"
 slika2 = "images/ae.jpeg"
 slika3 = "images/ai.jpeg"
@@ -14,31 +16,49 @@ slika9 = "images/bz.jpeg"  # nosite se u kurac
 slika10 = "images/ao.jpeg"  # jebem vam mater
 
 
-image = cv2.imread(slika10)
+image = cv2.imread(slika1)  # read image
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # image 2 grayscale
 
-# convert the image to grayscale, blur it, and find edges
-# in the image
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+# Bluring
 gray = cv2.GaussianBlur(gray, (5, 5), 0)
 # edged = cv2.adaptiveThreshold(gray, 250, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 3)
-# gray = cv2.Canny(gray, 0, 3)
-gray = cv2.bilateralFilter(gray, 9, 41, 41)
-# _, gray = cv2.threshold(gray, 254, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 20)
-# gray = imutils.auto_canny(gray)
 # gray = cv2.blur(gray, (21, 21))
+# gray = cv2.bilateralFilter(gray, 9, 41, 41)
 
-# find the contours in the edged image, keeping only the
-# largest ones, and initialize the screen contour
+# Thresholding
+# _, gray = cv2.threshold(gray, 254, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+# gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 20)
+
+
+# Canny
+# gray = imutils.auto_canny(gray)
+# gray = cv2.Canny(gray, 0, 3)
+
+
+# Laplacian
+# gray = cv2.Laplacian(gray, cv2.CV_64F)
+# gray = np.uint8(np.absolute(gray))
+
+# Sobel
+sobelX = cv2.Sobel(gray, cv2.CV_64F, 1, 0)
+sobelY = cv2.Sobel(gray, cv2.CV_64F, 0, 1)
+sobelZ = cv2.bitwise_or(sobelX, sobelY)
+gray = sobelZ
+gray = np.uint8(np.absolute(gray))
+
+
+# Contours
 # (_, contours, _) = cv2.findContours(gray.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 # contours = sorted(contours, key=cv2.contourArea, reverse=True)[0]
 # print(len(contours))
-#
 # cv2.drawContours(image, contours, -1, (0, 0, 255), 3)
+
+
 img_sw = imutils.resize(image, height=800)
 cv2.imshow("Image", img_sw)
 edg_sw = imutils.resize(gray, height=800)
 cv2.imshow("Edged", edg_sw)
 cv2.waitKey(0)
 
-cv2.reduce()
+# cv2.reduce() # TODO

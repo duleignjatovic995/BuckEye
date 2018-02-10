@@ -1,5 +1,6 @@
 import cv2
 import imutils
+
 import numpy as np
 
 
@@ -18,12 +19,12 @@ slika11 = "images/bs.jpeg"
 slika12 = "images/crna2.jpg"
 
 
-image = cv2.imread(slika12)  # read image
+image = cv2.imread(slika8)  # read image
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # image 2 grayscale
 
 
 # Blurring
-gray = cv2.GaussianBlur(gray, (5, 5), 0)
+# gray = cv2.GaussianBlur(gray, (5, 5), 0)
 # gray = cv2.medianBlur(gray, (5, 5))
 # gray = cv2.blur(gray, (21, 21))
 # gray = cv2.bilateralFilter(gray, 9, 41, 41)
@@ -47,8 +48,8 @@ gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
 
 # Canny
-gray = imutils.auto_canny(gray)
-# gray = cv2.Canny(gray, 25, 150)
+# gray = imutils.auto_canny(gray)
+gray = cv2.Canny(gray, 25, 150)
 
 
 # Contours
@@ -56,6 +57,19 @@ gray = imutils.auto_canny(gray)
 # contours = sorted(contours, key=cv2.contourArea, reverse=True)[0]
 # print(len(contours))
 # cv2.drawContours(image, contours, -1, (0, 0, 255), 3)
+
+
+detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+faceRects = detector.detectMultiScale(
+    gray,
+    scaleFactor=1.1,
+    minNeighbors=5,
+    minSize=(30, 30),
+    flags=cv2.CASCADE_SCALE_IMAGE
+)
+
+for (x, y, w, h) in faceRects:
+    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
 
 img_sw = imutils.resize(image, height=800)

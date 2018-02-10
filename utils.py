@@ -1,7 +1,7 @@
-import cv2
-import imutils
 import numpy as np
+import cv2
 import glob
+import imutils
 
 
 def remove_black_edges(img):
@@ -32,14 +32,37 @@ def crop_redundant(image):
     x, y, w, h = cv2.boundingRect(cnt)
 
     # Ensure bounding rect should be at least 16:9 or taller
-    if w / h > 16 / 9:
-        # increase top and bottom margin
-        newHeight = w / 16 * 9
-        y = y - (newHeight - h) / 2
-        h = newHeight
+    # if w / h > 16 / 9:
+    #     # increase top and bottom margin
+    #     newHeight = w / 16 * 9
+    #     y = y - (newHeight - h) / 2
+    #     h = newHeight
 
     crop = image[y:y + h, x:x + w]
     return crop
+
+
+def draw_cropped_contour(image):
+    im_copy = image.copy()
+    gray = cv2.cvtColor(im_copy, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(gray, 20, 255, 0)
+    im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(im_copy, contours, -1, (0, 255, 0), 3)
+    return im_copy
+
+
+def check_rotation(img):
+    rows, cols, _ = img.shape
+
+    if rows / cols > 4 / 3:
+        print("Extreme vertical axis")
+    elif cols / rows > 4 / 3:
+        print("Extreme horizontal axis")
+    elif rows / cols <= 4 / 3 or cols / rows <= 4 / 3:
+        print("U granicama")
+
+        # M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 90, 1)
+        # dst = cv2.warpAffine(img, M, (cols, rows))
 
 
 def detect_faces(image):
@@ -57,7 +80,7 @@ def detect_faces(image):
         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
 
-def test_remove_black_edges():
+def remove_black_edges_test_one():
     # 'images/bs.jpeg'
     # "images/crna1.jpg"
     image = cv2.imread("images/crna3.jpg")
@@ -73,21 +96,23 @@ def test_remove_black_edges():
     cv2.waitKey(0)
 
 
-def test_remove_black_edges1():
-    for filename in glob.iglob("images/*"):
+def remove_black_edges_test_all():
+    for filename in glob.iglob("images1/*"):
         image = cv2.imread(filename)
-        proc = remove_black_edges(image.copy())
-        detect_faces(proc)
-        proc = imutils.resize(proc, height=400)
+        # proc = remove_black_edges(image.copy())
+        contoured = draw_cropped_contour(image)
+        proc = crop_redundant(image.copy())
+        # detect_faces(proc)
+        check_rotation(proc)
+        proc2 = imutils.resize(proc, height=400)
         image = imutils.resize(image, height=400)
-        show = np.concatenate((image, proc), axis=1)
-        cv2.imshow("ljepotica", show)
-        # cv2.imshow("ljepotica", proc)
-        # cv2.imshow("kurotica", image)
-        print('%s' % filename)
+        contoured = imutils.resize(contoured, height=400)
+        show = np.concatenate((image, proc2, contoured), axis=1)
+        cv2.imshow(filename, show)
+        cv2.imwrite("rezultat/" + filename.split('/')[1], proc)
         cv2.waitKey(0)
-        # input(">>")
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    test_remove_black_edges1()
+    remove_black_edges_test_all()

@@ -97,7 +97,7 @@ def remove_black_edges_test_one():
 
 
 def remove_black_edges_test_all():
-    for filename in glob.iglob("images1/*"):
+    for filename in glob.iglob("images/*"):
         image = cv2.imread(filename)
         # proc = remove_black_edges(image.copy())
         contoured = draw_cropped_contour(image)
